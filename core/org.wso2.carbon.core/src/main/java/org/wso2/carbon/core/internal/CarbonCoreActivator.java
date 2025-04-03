@@ -30,6 +30,8 @@ import java.lang.management.ManagementPermission;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * OSGi bundle Activator for Carbon core
@@ -90,6 +92,9 @@ public class CarbonCoreActivator implements BundleActivator {
         if (log.isDebugEnabled()) {
             log.debug(providerName + " security provider is successfully registered in JVM.");
         }
+
+        Logger packageLogger = Logger.getLogger("org.bouncycastle.jsse");
+        packageLogger.setLevel(Level.WARNING);
 
         provider = (Provider) (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
                 getDeclaredConstructor().newInstance();
