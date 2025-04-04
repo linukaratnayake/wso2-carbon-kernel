@@ -17,9 +17,15 @@
  */
 package org.wso2.carbon.utils;
 
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.impl.client.HttpClientBuilder;
+
+import javax.net.ssl.SSLContext;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 import static org.wso2.carbon.CarbonConstants.ALLOW_ALL;
 import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
@@ -42,7 +48,17 @@ public class HTTPClientUtils {
      */
     public static HttpClientBuilder createClientWithCustomVerifier() {
 
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().useSystemProperties();
+        SSLContext sslContext;
+        try {
+            sslContext = SSLContext.getInstance("TLS", "BCJSSE");
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new RuntimeException(e);
+        }
+
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
+                .setSSLContext(sslContext)
+                .useSystemProperties();
+
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
             X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
             httpClientBuilder.setHostnameVerifier(hostnameVerifier);

@@ -98,7 +98,7 @@ public class CarbonCoreActivator implements BundleActivator {
 
         provider = (Provider) (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
                 getDeclaredConstructor().newInstance();
-        Security.insertProviderAt(provider, 1);
+        Security.addProvider(provider);
 //        System.setProperty("jdk.tls.namedGroups", "X25519MLKEM768, X25519");
     }
 
