@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.utils;
 
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -22,6 +23,8 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HostnameVerifier;
 
@@ -34,6 +37,7 @@ import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
  */
 public class HTTPClientUtils {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HTTPClientUtils.class);
 
     private HTTPClientUtils() {
         //disable external instantiation
@@ -82,7 +86,8 @@ public class HTTPClientUtils {
             httpClientBuilder.setConnectionManager(
                 PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
                     .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
+                            .setSslContext(SSLContextUtils.getSSLContext())
                             .setHostnameVerifier(hostnameVerifier)
                             .build()
                     )
@@ -104,8 +109,28 @@ public class HTTPClientUtils {
             .setConnectionManager(
                 PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
                     .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
+                            .setSslContext(SSLContextUtils.getSSLContext())
                             .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                            .build()
+                    )
+                    .build()
+            );
+    }
+
+    /**
+     * Get Apache HTTP Client 5 httpclient builder with system properties.
+     *
+     * @return HttpClientBuilder.
+     */
+    public static HttpClientBuilder createHttp5ClientWithSystemProperties() {
+
+        return HttpClientBuilder.create().useSystemProperties()
+            .setConnectionManager(
+                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
+                    .setTlsSocketStrategy(
+                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
+                            .setSslContext(SSLContextUtils.getSSLContext())
                             .build()
                     )
                     .build()
