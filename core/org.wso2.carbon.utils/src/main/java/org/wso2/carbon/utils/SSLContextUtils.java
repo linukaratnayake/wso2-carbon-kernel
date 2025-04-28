@@ -66,11 +66,7 @@ public class SSLContextUtils {
             char[] kspassphrase = keyStorePassword.toCharArray();
 
             try {
-                // TODO - Replace with following when BouncyCastle is needed.
-                //  Use addProvider instead of insertProviderAt.
-//                sslContext = SSLContext.getInstance("TLS", "BCJSSE");
-                sslContext = SSLContext.getDefault();
-
+                sslContext = SSLContext.getInstance("TLS", "BCJSSE");
                 keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
                 KeyStore keyStore = getPrimaryKeyStoreForSuperTenant();
                 keyManagerFactory.init(keyStore, kspassphrase);
