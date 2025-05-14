@@ -30,8 +30,6 @@ import java.lang.management.ManagementPermission;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * OSGi bundle Activator for Carbon core
