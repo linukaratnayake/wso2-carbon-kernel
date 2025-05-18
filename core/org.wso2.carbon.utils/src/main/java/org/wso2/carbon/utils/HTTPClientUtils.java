@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,18 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.carbon.utils;
 
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
-import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.HostnameVerifier;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import static org.wso2.carbon.CarbonConstants.ALLOW_ALL;
 import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
@@ -37,7 +30,6 @@ import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
  */
 public class HTTPClientUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HTTPClientUtils.class);
 
     private HTTPClientUtils() {
         //disable external instantiation
@@ -46,94 +38,27 @@ public class HTTPClientUtils {
     /**
      * Get the httpclient builder with custom hostname verifier.
      *
-     * @deprecated This method uses the Apache HTTP Client 4.x. Use {@link #createHttp5ClientWithCustomVerifier()}
-     * which implements Apache HTTP Client 5.x instead.
+     * @deprecated
+     *
+     * This method is deprecated as part of an effort to unify all HTTP client implementations
+     * across the products. Apache HTTP Client 5.x is chosen for this effort
+     * since it is the latest stable version, and this method was written using Apache HTTP Client 4.x.
+     *
+     * Use {@link org.wso2.carbon.utils.httpclient5.HTTPClientUtils#createClientWithCustomVerifier} instead.
      *
      * @return HttpClientBuilder.
      */
     @Deprecated
-    public static org.apache.http.impl.client.HttpClientBuilder createClientWithCustomVerifier() {
-
-        org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =
-                org.apache.http.impl.client.HttpClientBuilder.create().useSystemProperties();
-        if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            org.apache.http.conn.ssl.X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
-            httpClientBuilder.setHostnameVerifier(hostnameVerifier);
-        } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            httpClientBuilder.setHostnameVerifier(new org.apache.http.conn.ssl.AllowAllHostnameVerifier());
-        }
-
-        return httpClientBuilder;
-    }
-
-    /**
-     * Get Apache HTTP Client 5 httpclient builder with custom hostname verifier.
-     *
-     * @return HttpClientBuilder.
-     */
-    public static HttpClientBuilder createHttp5ClientWithCustomVerifier() {
+    public static HttpClientBuilder createClientWithCustomVerifier() {
 
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().useSystemProperties();
-
-        HostnameVerifier hostnameVerifier = null;
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            hostnameVerifier = Http5CustomHostNameVerifier.INSTANCE;
+            X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
+            httpClientBuilder.setHostnameVerifier(hostnameVerifier);
         } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            hostnameVerifier = NoopHostnameVerifier.INSTANCE;
-        }
-
-        if (hostnameVerifier != null) {
-            httpClientBuilder.setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                    .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
-                            .setSslContext(SSLContextUtils.getSSLContext())
-                            .setHostnameVerifier(hostnameVerifier)
-                            .build()
-                    )
-                    .build()
-            );
+            httpClientBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
         }
 
         return httpClientBuilder;
-    }
-
-    /**
-     * Get Apache HTTP Client 5 httpclient builder with hostname verifier, trusting all certificates.
-     *
-     * @return HttpClientBuilder.
-     */
-    public static HttpClientBuilder createHttp5ClientWithTrustAllCertificates() {
-
-        return HttpClientBuilder.create().useSystemProperties()
-            .setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                    .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
-                            .setSslContext(SSLContextUtils.getSSLContext())
-                            .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                            .build()
-                    )
-                    .build()
-            );
-    }
-
-    /**
-     * Get Apache HTTP Client 5 httpclient builder with system properties.
-     *
-     * @return HttpClientBuilder.
-     */
-    public static HttpClientBuilder createHttp5ClientWithSystemProperties() {
-
-        return HttpClientBuilder.create().useSystemProperties()
-            .setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                    .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
-                            .setSslContext(SSLContextUtils.getSSLContext())
-                            .build()
-                    )
-                    .build()
-            );
     }
 }
