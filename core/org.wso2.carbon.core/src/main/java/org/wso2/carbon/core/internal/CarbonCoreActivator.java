@@ -91,9 +91,12 @@ public class CarbonCoreActivator implements BundleActivator {
             log.debug(providerName + " security provider is successfully registered in JVM.");
         }
 
-        provider = (Provider) (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
-                getDeclaredConstructor().newInstance();
-        Security.insertProviderAt(provider, 1);
+        String jsseProviderName = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JSSE_PROVIDER);
+        if (StringUtils.isBlank(jsseProviderName) || jsseProviderName.equals(ServerConstants.JSSE_PROVIDER_BC)) {
+            provider = (Provider) (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
+                    getDeclaredConstructor().newInstance();
+            Security.insertProviderAt(provider, 1);
+        }
     }
 
     public void stop(BundleContext context) throws Exception {
