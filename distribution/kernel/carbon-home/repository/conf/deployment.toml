@@ -87,3 +87,6 @@ password = "wso2carbon"
 #username_header
 #white_list_enabled
 #white_list
+
+[jsse_provider]
+provider_name = "BCJSSE"
