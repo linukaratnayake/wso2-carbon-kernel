@@ -79,6 +79,19 @@ public class CarbonCoreActivator implements BundleActivator {
             provider = (Provider) (Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider")).
                     getDeclaredConstructor().newInstance();
 
+            // Add BouncyCastle JSSE provider and preferred named groups for outbound communication.
+            String jsseProviderName = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JSSE_PROVIDER);
+            if (ServerConstants.JSSE_PROVIDER_BC.equals(jsseProviderName)) {
+                Provider jsseProvider = (Provider)
+                        (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
+                        getDeclaredConstructor().newInstance();
+                Security.insertProviderAt(jsseProvider, 1);
+
+                // Set TLS named groups for BouncyCastle Jsse provider.
+                System.setProperty("jdk.tls.namedGroups",
+                        ServerConstants.JSSE_PROVIDER_NAMED_GROUPS.replace(':', ','));
+            }
+
         } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
             provider = (Provider) (Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider")).
                     getDeclaredConstructor().newInstance();

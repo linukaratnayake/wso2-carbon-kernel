@@ -158,6 +158,9 @@ public final class ServerConstants {
     public static final String JCE_PROVIDER = "JCEProvider";
     public static final String JCE_PROVIDER_BC = "BC";
     public static final String JCE_PROVIDER_BCFIPS = "BCFIPS";
+    public static final String JSSE_PROVIDER = "JSSEProvider.ProviderName";
+    public static final String JSSE_PROVIDER_NAMED_GROUPS = "JSSEProvider.NamedGroups";
+    public static final String JSSE_PROVIDER_BC = "BC";
     public static final String SIGNATURE_UTIL_ENABLE_SHA256_ALGO = "SignatureUtil.EnableSHA256Algo";
     public static final String ENABLE_LEGACY_AUTHZ_RUNTIME = "EnableLegacyAuthzRuntime";
 
