@@ -88,8 +88,8 @@ public class CarbonCoreActivator implements BundleActivator {
                 Security.insertProviderAt(jsseProvider, 1);
 
                 // Set TLS named groups for BouncyCastle Jsse provider.
-                System.setProperty("jdk.tls.namedGroups",
-                        ServerConstants.JSSE_PROVIDER_NAMED_GROUPS.replace(':', ','));
+                System.setProperty("jdk.tls.namedGroups", ServerConfiguration.getInstance().getFirstProperty(
+                                ServerConstants.JSSE_PROVIDER_NAMED_GROUPS).replace(':', ','));
             }
 
         } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
